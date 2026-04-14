@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EuroMillions Lucky Line Generator — The Peak Press</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-teal:    #199eb9;
+    --brand-blue:    #1b4caf;
+    --brand-mid:     #1886bd;
+    --ink:           #0e1a2b;
+    --ink-muted:     #4a5568;
+    --ink-faint:     #8a96a8;
+    --paper:         #f8f6f1;
+    --paper-warm:    #f0ede5;
+    --rule:          #d8d4cb;
+    --hot-bg:        #e6f4f8;
+    --hot-text:      #0d6e85;
+    --cold-bg:       #eef0f3;
+    --cold-text:     #3a4a60;
+    --star-bg:       #fff3cd;
+    --star-text:     #7a5000;
+    --radius:        6px;
+  }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 4rem;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: #fff;
+    text-align: center;
+    padding: 1.25rem 1rem 1rem;
+    border-bottom: 3px solid var(--brand-teal);
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 59px,
+      rgba(255,255,255,0.03) 60px
+    );
+    pointer-events: none;
+  }
+  .masthead-label {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brand-teal);
+    margin-bottom: 6px;
+  }
+  .masthead-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .masthead-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+
+  /* DATELINE */
+  .dateline {
+    background: var(--brand-teal);
+    color: #fff;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 1rem;
+  }
+
+  /* MAIN LAYOUT */
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 0;
+  }
+
+  /* INTRO */
+  .intro {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .intro p {
+    font-size: 15px;
+    color: var(--ink-muted);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .control-group label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .control-group select {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 8px 30px 8px 12px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a96a8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .control-group select:focus { outline: 2px solid var(--brand-teal); outline-offset: 1px; }
+
+  /* GENERATE BUTTON */
+  .btn-generate {
+    display: block;
+    margin: 0 auto 2.5rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--brand-blue);
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px 40px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-generate:hover { background: var(--brand-mid); }
+  .btn-generate:active { transform: scale(0.98); }
+  .btn-generate.spinning { pointer-events: none; }
+  .btn-generate.spinning::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+    animation: shimmer 0.6s ease;
+  }
+  @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+  /* LINES */
+  .lines-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 2.5rem; }
+
+  .line-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .line-card.visible { opacity: 1; transform: none; }
+
+  .line-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--brand-teal);
+    min-width: 28px;
+    line-height: 1;
+  }
+
+  .line-balls {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    flex: 1;
+    align-items: center;
+  }
+
+  .ball {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .ball:hover { transform: scale(1.1); }
+  .ball.hot { background: var(--hot-bg); color: var(--hot-text); }
+  .ball.cold { background: var(--cold-bg); color: var(--cold-text); }
+  .ball.mid { background: var(--paper-warm); color: var(--ink-muted); }
+
+  .ball.star {
+    border-radius: 4px;
+    background: var(--star-bg);
+    color: var(--star-text);
+    font-size: 12px;
+  }
+  .ball.star::before { content: '★ '; font-size: 10px; }
+
+  .line-sep {
+    width: 1px;
+    height: 30px;
+    background: var(--rule);
+    flex-shrink: 0;
+  }
+
+  .line-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    min-width: 80px;
+    text-align: right;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    padding: 14px 20px;
+    background: var(--paper-warm);
+    border-radius: var(--radius);
+    border: 1px solid var(--rule);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+  }
+
+  /* COPY BUTTON */
+  .copy-area {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .btn-copy {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brand-blue);
+    background: transparent;
+    border: 1px solid var(--brand-blue);
+    border-radius: var(--radius);
+    padding: 9px 24px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-copy:hover { background: var(--brand-blue); color: #fff; }
+  .copy-confirm {
+    font-size: 12px;
+    color: var(--brand-teal);
+    margin-top: 8px;
+    height: 16px;
+    transition: opacity 0.3s;
+  }
+
+  /* FOOTER NOTE */
+  .footer-note {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.5rem;
+    text-align: center;
+  }
+  .footer-note p {
+    font-size: 12px;
+    color: var(--ink-faint);
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .footer-note a {
+    color: var(--brand-teal);
+    text-decoration: none;
+  }
+  .footer-note a:hover { text-decoration: underline; }
+
+  .footer-brand {
+    margin-top: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 480px) {
+    .ball { width: 34px; height: 34px; font-size: 12px; }
+    .line-tag { display: none; }
+    .line-sep { display: none; }
+    .line-card { padding: 12px 14px; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <p class="masthead-label">The Peak Press</p>
+  <h1 class="masthead-title">Lucky Lines</h1>
+  <p class="masthead-sub">EuroMillions number generator</p>
+</header>
+<div class="dateline" id="dateline"></div>
+
+<main class="page">
+
+  <div class="intro">
+    <p>Your lines are generated using 20+ years of EuroMillions frequency data — blending the most drawn numbers with those that are statistically overdue. Each generation is unique.</p>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label for="numLines">Number of lines</label>
+      <select id="numLines">
+        <option value="3">3 lines</option>
+        <option value="5" selected>5 lines</option>
+        <option value="8">8 lines</option>
+        <option value="10">10 lines</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="strategy">Strategy</label>
+      <select id="strategy">
+        <option value="balanced" selected>Balanced mix</option>
+        <option value="hot">Hot numbers</option>
+        <option value="cold">Cold numbers (overdue)</option>
+        <option value="random">Fully random</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn-generate" id="generateBtn" onclick="generate()">Generate my lines</button>
+
+  <div class="lines-container" id="linesContainer"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--hot-bg); border: 1px solid #b2d8e4;"></div>Hot — drawn most often</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cold-bg); border: 1px solid #c8cdd5;"></div>Cold — statistically overdue</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--paper-warm); border: 1px solid var(--rule);"></div>Mid-range</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--star-bg); border-radius:2px; border: 1px solid #e0c870;"></div>Lucky Star</div>
+  </div>
+
+  <div class="copy-area" id="copyArea" style="display:none;">
+    <button class="btn-copy" onclick="copyLines()">Copy all lines to clipboard</button>
+    <p class="copy-confirm" id="copyConfirm"></p>
+  </div>
+
+  <div class="footer-note">
+    <p>Lines are generated for entertainment only. EuroMillions is a game of chance — past frequency data does not influence future draws. Odds of winning the jackpot: approximately 1 in 139,838,160. Please play responsibly. <a href="https://www.begambleaware.org" target="_blank">BeGambleAware.org</a></p>
+    <p class="footer-brand">The Peak Press &mdash; High Peak, Derbyshire</p>
+  </div>
+
+</main>
+
+<script>
+  const hot  = [42,17,20,21,29,44,23,27,48,10];
+  const cold = [22,40,18,1,43,33,46,36,30,38];
+  const mid  = [35,19,34,13,45,7,12,15,24,39,41,25,5,9,14,16,47,2,8,37,3,26,31,32,50,6,49,11,28,4];
+  const hotStars  = [2,3,6,12];
+  const coldStars = [1,4,5];
+  const midStars  = [7,8,9,10,11];
+  const allNums   = Array.from({length:50},(_,i)=>i+1);
+  const allStars  = Array.from({length:12},(_,i)=>i+1);
+
+  const profiles = {
+    balanced: [
+      {label:'Balanced',    hotN:2, midN:2, coldN:1, hotS:1, coldS:1},
+      {label:'Balanced',    hotN:2, midN:1, coldN:2, hotS:1, coldS:1},
+      {label:'Hot-leaning', hotN:3, midN:1, coldN:1, hotS:2, coldS:0},
+      {label:'Cold-leaning',hotN:1, midN:2, coldN:2, hotS:0, coldS:2},
+      {label:'Balanced',    hotN:2, midN:2, coldN:1, hotS:1, coldS:1},
+      {label:'Even split',  hotN:2, midN:1, coldN:2, hotS:1, coldS:1},
+      {label:'Balanced',    hotN:3, midN:1, coldN:1, hotS:1, coldS:1},
+      {label:'Cold-leaning',hotN:1, midN:3, coldN:1, hotS:0, coldS:2},
+      {label:'Hot-leaning', hotN:3, midN:2, coldN:0, hotS:2, coldS:0},
+      {label:'Balanced',    hotN:2, midN:2, coldN:1, hotS:1, coldS:1},
+    ],
+    hot: Array.from({length:10}, () => ({label:'Hot',   hotN:4, midN:1, coldN:0, hotS:2, coldS:0})),
+    cold: Array.from({length:10}, () => ({label:'Overdue', hotN:0, midN:2, coldN:3, hotS:0, coldS:2})),
+    random: Array.from({length:10}, () => ({label:'Random', hotN:-1})),
+  };
+
+  function pick(arr, n) {
+    const copy = [...arr], out = [];
+    for(let i=0; i<n && copy.length; i++) {
+      const idx = Math.floor(Math.random() * copy.length);
+      out.push(copy.splice(idx,1)[0]);
+    }
+    return out;
+  }
+
+  function getType(n) {
+    if(hot.includes(n))  return 'hot';
+    if(cold.includes(n)) return 'cold';
+    return 'mid';
+  }
+
+  function buildLine(profile) {
+    let nums, stars;
+    if(profile.hotN === -1) {
+      nums  = pick(allNums, 5).sort((a,b)=>a-b);
+      stars = pick(allStars, 2).sort((a,b)=>a-b);
+    } else {
+      const usedHot  = pick(hot,  profile.hotN);
+      const usedMid  = pick(mid,  profile.midN);
+      const usedCold = pick(cold, profile.coldN);
+      nums = [...usedHot, ...usedMid, ...usedCold].sort((a,b)=>a-b);
+      const usedHotS = pick(hotStars,  profile.hotS  || 0);
+      const usedColdS= pick(coldStars, profile.coldS || 0);
+      const remS     = 2 - usedHotS.length - usedColdS.length;
+      const usedMidS = pick(midStars, remS > 0 ? remS : 0);
+      stars = [...usedHotS, ...usedColdS, ...usedMidS].slice(0,2).sort((a,b)=>a-b);
+      if(stars.length < 2) stars = [...stars, ...pick(midStars.filter(s=>!stars.includes(s)),1)];
+    }
+    return { nums, stars, label: profile.label };
+  }
+
+  let lastLines = [];
+
+  function generate() {
+    const n        = parseInt(document.getElementById('numLines').value);
+    const strategy = document.getElementById('strategy').value;
+    const pool     = profiles[strategy] || profiles.balanced;
+    const btn      = document.getElementById('generateBtn');
+
+    btn.classList.add('spinning');
+    btn.textContent = 'Generating…';
+
+    setTimeout(() => {
+      const shuffledPool = [...pool].sort(() => Math.random()-0.5);
+      lastLines = Array.from({length:n}, (_,i) => buildLine(shuffledPool[i % shuffledPool.length]));
+      renderLines(lastLines);
+      btn.classList.remove('spinning');
+      btn.textContent = 'Regenerate';
+      document.getElementById('copyArea').style.display = 'block';
+      document.getElementById('copyConfirm').textContent = '';
+    }, 350);
+  }
+
+  function renderLines(lines) {
+    const container = document.getElementById('linesContainer');
+    container.innerHTML = '';
+    lines.forEach((line, i) => {
+      const card = document.createElement('div');
+      card.className = 'line-card';
+      const ballsHtml = line.nums.map(n => {
+        const t = getType(n);
+        return `<div class="ball ${t}" title="${t === 'hot' ? 'Hot number' : t === 'cold' ? 'Cold number' : 'Mid-range'}">${n}</div>`;
+      }).join('') +
+      `<div class="line-sep"></div>` +
+      line.stars.map(s => `<div class="ball star" title="Lucky Star">${s}</div>`).join('');
+
+      card.innerHTML = `
+        <div class="line-number">${i+1}</div>
+        <div class="line-balls">${ballsHtml}</div>
+        <div class="line-sep" style="display:none;"></div>
+        <div class="line-tag">${line.label}</div>
+      `;
+      container.appendChild(card);
+      requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('visible')));
+    });
+  }
+
+  function copyLines() {
+    const text = lastLines.map((l, i) =>
+      `Line ${i+1}: ${l.nums.join(', ')} | Stars: ${l.stars.join(', ')}`
+    ).join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      const c = document.getElementById('copyConfirm');
+      c.textContent = 'Copied to clipboard';
+      setTimeout(() => { c.textContent = ''; }, 2500);
+    }).catch(() => {
+      const c = document.getElementById('copyConfirm');
+      c.textContent = 'Copy failed — please select and copy manually';
+    });
+  }
+
+  function setDateline() {
+    const d = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('dateline').textContent =
+      `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} — Draw every Tuesday & Friday`;
+  }
+
+  setDateline();
+  generate();
+</script>
+</body>
+</html>
